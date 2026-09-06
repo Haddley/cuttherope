@@ -27,6 +27,16 @@ No unit tests. Smoke-test with Playwright against `python3 -m http.server`:
 drive `window.__ctr.goto(i)` / `.state()` / `.view()`, map world→screen with
 `view`, check `state().won`. Watch for `pageerror` / `console.error`.
 
+`npm test` runs `tests/solve-levels.mjs` — the "every level is completable"
+e2e suite. It flips on `window.__ctr.test` (which stops the rAF loop from
+auto-stepping physics), then for each level steps the *real* `update()` a
+fixed 1/120 s at a time while searching action sequences (cut / pop / puff /
+flip) for one that feeds Om Nom. Fails if any level has no winning plan.
+Needs a browser: `npx playwright install chromium`, or it falls back to a
+system Chrome. Keep this green — a red level means a genuinely unwinnable
+layout (usually the candy hanging dead-straight below its anchor so it never
+swings, with Om Nom off to one side).
+
 ## Deploy
 Push to `main`. Pages rebuilds automatically. `.nojekyll` is present so the
 `js/` directory is served verbatim.

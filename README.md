@@ -56,6 +56,19 @@ python3 -m http.server 8000
 # open http://localhost:8000
 ```
 
+## Tests
+
+```bash
+npm install
+npx playwright install chromium   # or rely on a system Chrome
+npm test
+```
+
+`npm test` runs an end-to-end suite that drives the real game headlessly and
+proves **every one of the 18 levels can actually be completed** — for each
+level it steps the physics deterministically and searches cut / pop / puff /
+flip sequences until the candy reaches Om Nom.
+
 ## Project layout
 
 ```

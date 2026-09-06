@@ -1,0 +1,15 @@
+{
+  "name": "cuttherope-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "From-scratch browser tribute to Cut the Rope. Static site, no build step.",
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server 8123",
+    "test": "node tests/solve-levels.mjs",
+    "test:headed": "HEADED=1 node tests/solve-levels.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

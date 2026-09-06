@@ -67,6 +67,8 @@ let particles = [];
 let lastT = performance.now();
 let acc = 0;
 const STEP = 1 / 120;
+let testHook = false;   // when true the rAF loop stops auto-stepping physics
+                        // so window.__ctr.test can drive it deterministically
 
 function buildLevel(idx) {
   const data = LEVELS[idx];
@@ -98,6 +100,7 @@ function buildLevel(idx) {
   };
 
   particles = [];
+  acc = 0;
   levelLabel.innerHTML = `Box ${boxNumber(data.box)} &mdash; ${data.n}`;
   showHint(data.hint);
   mode = "play";
@@ -439,7 +442,7 @@ function frame(now) {
   let dt = (now - lastT) / 1000;
   lastT = now;
   if (dt > 0.05) dt = 0.05;
-  update(dt);
+  if (!testHook) update(dt);
   render();
   requestAnimationFrame(frame);
 }
@@ -490,10 +493,33 @@ window.__ctr = {
     mode, levelIndex,
     ended: level && level.ended,
     won: level && level.won,
+    lost: level && level.ended && !level.won,
     stars: level && level.starsGot,
-    candy: level && { x: Math.round(level.candy.x), y: Math.round(level.candy.y) },
+    candy: level && { x: level.candy.x, y: level.candy.y },
     liveRopes: level && level.world.liveRopes(),
+    t: level && level.t,
   }),
   goto: i => buildLevel(i),
   view: () => view,
+  levelCount: () => LEVELS.length,
+  levelData: i => JSON.parse(JSON.stringify(LEVELS[i])),
+
+  // Deterministic driver for the e2e level-solvability suite. With the hook
+  // enabled the rAF loop stops advancing physics, so a test can step the
+  // simulation a fixed dt at a time and inject cuts / taps between steps.
+  test: {
+    enable() { testHook = true; },
+    disable() { testHook = false; lastT = performance.now(); },
+    reset(i) { buildLevel(i); },
+    step(dt = 1 / 120) { update(dt); },
+    cut(x1, y1, x2, y2) { if (level && mode === "play") cutTest({ x: x1, y: y1 }, { x: x2, y: y2 }); },
+    tap(x, y) { if (level && mode === "play") handleTap({ x, y }); },
+    ropes() {
+      return level ? level.world.ropes.map(r => ({ dead: r.dead, auto: !!r.auto })) : [];
+    },
+    cutRope(i) {
+      const r = level && level.world.ropes[i];
+      if (r && !r.dead) { r.cut(); sfx("cut"); }
+    },
+  },
 };
