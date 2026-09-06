@@ -34,11 +34,11 @@ export const LEVELS = [
   },
   {
     box: "Cardboard", n: 3,
-    hint: "Swing the candy to sweep up every star.",
-    candy: { x: 220, y: 360 },
+    hint: "Let it swing, then cut at the bottom to fling it across.",
+    candy: { x: 120, y: 320 },
     omnom: { x: 560, y: 1060 },
     ropes: [{ x: 220, y: 180, seg: 10, len: 300 }],
-    stars: [{ x: 360, y: 470 }, { x: 500, y: 560 }, { x: 560, y: 760 }],
+    stars: [{ x: 200, y: 478 }, { x: 330, y: 500 }, { x: 452, y: 708 }],
   },
   {
     box: "Cardboard", n: 4,
@@ -51,11 +51,11 @@ export const LEVELS = [
   {
     box: "Cardboard", n: 5,
     hint: "Dashed rings grab the candy with a fresh rope automatically.",
-    candy: { x: 170, y: 300 },
-    omnom: { x: 600, y: 1080 },
-    ropes: [{ x: 170, y: 170, seg: 7, len: 200 }],
-    autoRopes: [{ x: 430, y: 470, r: 120, seg: 8, len: 210 }],
-    stars: [{ x: 300, y: 430 }, { x: 470, y: 620 }, { x: 600, y: 850 }],
+    candy: { x: 120, y: 300 },
+    omnom: { x: 540, y: 1060 },
+    ropes: [{ x: 200, y: 180, seg: 7, len: 300 }],
+    autoRopes: [{ x: 400, y: 430, r: 120, seg: 8, len: 210 }],
+    stars: [{ x: 178, y: 468 }, { x: 405, y: 636 }, { x: 524, y: 900 }],
   },
   {
     box: "Cardboard", n: 6,
