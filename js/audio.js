@@ -5,14 +5,46 @@ let muted = false;
 
 function ctx() {
   if (!ac) {
-    try { ac = new (window.AudioContext || window.webkitAudioContext)(); }
-    catch { ac = null; }
+    try {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+    } catch { ac = null; return null; }
+    // iOS 16.4+: play through the media channel so the ringer/silent
+    // switch and low-power mode don't mute the game.
+    try {
+      if (navigator.audioSession) navigator.audioSession.type = "playback";
+    } catch { /* not supported */ }
   }
-  if (ac && ac.state === "suspended") ac.resume();
+  if (ac && ac.state !== "running") ac.resume().catch(() => {});
   return ac;
 }
 
-window.addEventListener("pointerdown", () => ctx(), { once: true });
+// iOS/Safari only start an AudioContext from inside a user gesture, and the
+// context can fall back to "suspended" when the tab is backgrounded. Keep
+// trying to unlock on every gesture until it's actually running, then stop.
+function unlock() {
+  const a = ctx();
+  if (!a) return;
+  if (a.state !== "running") { a.resume().catch(() => {}); }
+  // A one-sample silent buffer nudges WebKit into fully unlocking audio.
+  try {
+    const b = a.createBufferSource();
+    b.buffer = a.createBuffer(1, 1, 22050);
+    b.connect(a.destination);
+    b.start(0);
+  } catch { /* ignore */ }
+  if (a.state === "running") {
+    for (const ev of ["pointerdown", "touchend", "mousedown", "keydown"]) {
+      window.removeEventListener(ev, unlock, true);
+    }
+  }
+}
+
+for (const ev of ["pointerdown", "touchend", "mousedown", "keydown"]) {
+  window.addEventListener(ev, unlock, true);
+}
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && ac && ac.state !== "running") ac.resume().catch(() => {});
+});
 
 function tone(freq, dur, type = "sine", vol = 0.2, slideTo = null) {
   const a = ctx();
